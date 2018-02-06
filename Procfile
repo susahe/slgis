@@ -1,1 +1,1 @@
-web: gunicorn gissl.wsgi --log-file -
+web: gunicorn slgis.wsgi --log-file -

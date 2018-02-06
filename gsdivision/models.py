@@ -1,0 +1,158 @@
+#Sri Lanka Goverment Service (Grama Niladari Information System here after GIS)
+#Cleint Grama Niladari  Mr. Nishantha  (All iland Gramaniladari 1st Place in 2015)
+#Project Manager (D.S.S Hettiarachchi - BIT Project )
+#This is the Model File of GIS Project This Model Define all models. it consist of  7 Models Which are called
+# 1. GramaSevaDivision - (Division which is Grama Nildari Owned )
+# 2. Village
+# 3. Villagers whom inherit from Person Seperate App
+# 4. House
+# 5. Land
+# 6. Business
+# 7. Organization
+
+from django.db import models
+from django.utils.timezone import now
+from person.models import Person
+from datetime import datetime
+from datetime import timedelta
+
+class District(models.Model):
+	d_name = models.CharField(max_length=255,verbose_name="")
+
+	def __str__(self):
+		return self.d_name
+
+
+class DivisionSectOffice(models.Model):
+	ds_name = models.CharField(max_length=255,verbose_name="")
+
+	def __str__(self):
+		return self.ds_name
+class GramasevaDivision(models.Model):
+#models adttributes --------------------------------------------------------------------------------------------------------
+
+        gs_plist = (('WS','බටහිර'),('NR','නැගෙනහිර'),('SO','දකුණ'),('SB','සබරගමුව'),('UV','උෟව'),('CE','මධ්‍යම'),('NC','උතුරුමැද'),('NW','වයඹ'),('NO','උතුර'))
+        gs_province = models.CharField(max_length=2, verbose_name = "පලාත",choices=gs_plist , default = 'WS')
+        gs_district = models.OneToOneField(District,on_delete=models.CASCADE, verbose_name ="දිස්ත්‍රික්කය")
+        gs_divsect =  models.OneToOneField(DivisionSectOffice,on_delete=models.CASCADE, verbose_name="ප්‍රාද්ශිය ලේකම් කොට්ඨාශය")
+        gs_division = models.CharField(max_length=300,verbose_name="ග්‍රාම නිලධාරි වසම හා අංකය") #Grama Seva Division
+        gs_name =  models.CharField(max_length=300,verbose_name="ග්‍රාමසේවක මහතාගේ නම") # Person Other Name
+        gs_start_date = models.DateTimeField(default=now,verbose_name="සේවය පටන් ගත් දිනය")
+        gs_end_date = models.DateTimeField(verbose_name="සේවය අවසන් කල දිනය ",blank=True, default=(datetime.now() + timedelta(365*5)))
+
+#----------------------------------------------------------------------------------------------------------------------------
+        def __str__(self):
+                return self.gs_division + " - " +self.gs_name
+      
+
+
+        def set_gs_division(self,gs_d):
+                gs_division = gs_d
+
+
+class Village(models.Model):
+#models adttributes --------------------------------------------------------------------------------------------------------
+        gs_division = models.ForeignKey(GramasevaDivision,on_delete=models.CASCADE)
+        v_list      = (('MW','මහවත්ත'),('SW','සේදවත්ත'),('ER','ඇලකන්ද පාර'),('SR','සුරුවල පාර'),('RA','රදැල්ල'),('TH','තල්ගස්මුල්ල'))
+        v_name      = models.CharField(max_length=2,choices=v_list,default='MW',verbose_name='ගම') # v_name mean Village Name
+        v_road      = models.CharField(max_length=200,verbose_name='පාර')  # v_road mean Viallge Road
+#----------------------------------------------------------------------------------------------------------------------------
+        def __str__(self):
+                return self.v_name
+#get Methods ==================================================
+        def get_v_name(self):
+                return self.v_name
+        def get_v_road(self):
+                return self.v_road
+#Set Method ===================================================
+        def set_v_name(self,vname):
+                v_name= vname
+        def set_v_road(self,vroad):
+                v_road = vroad
+
+class Villager(Person):
+     #gs_division = models.ForeignKey(GramasevaDivision,on_delete=models.CASCADE)
+     v_list         = (('GM','ගෘහමූලික'),('WF','බිරිඳ'),('DT','දුව'),('SN','පුතා'),('MO','මව'),('FR','පියා'),('EB','අයියා'),('ES','අක්කා'),('ST','නංගි'),('BR','මල්ලි'),('SB','සහෝදරයා'),('SS','සහෝදරිය'),('UN','මාමා'),('AN','නැන්දා'),('SM','මෙහෙකරු'),('SF','මෙහකාරිය'),('MN','මුනුබුරා'),('MI','මිනිබිරිය'))
+     d_list         = (('SD','සමෘද්ධි සහනාධාරය'),('PD','මහජන ආධාර'),('DD','රෝගාධාර'),('SD','ශිෂ්‍යාධාර'),('ED','වැඩිහිටි ආධාර'),('ND','ආධාර නොලබන'))
+     d_list         = (('EP','ඇස්නොපෙනන'),('DD','ශ්‍රවන ඌණ'))
+     p_type         = models.CharField(max_length=2,choices=v_list,default='GM',verbose_name="ඟාති සම්බන්ධය") # Person Type
+     p_donation     = models.CharField(max_length=20,verbose_name="රජයෙන් ලබන ආධාර", choices=d_list, default='ND')
+     p_disbility    = models.CharField(max_length=2,verbose_name="ආබාධිත",choices=d_list,default='EP')
+     def __str__(self):
+         return  self.p_type
+
+class House(models.Model):
+#models adttributes --------------------------------------------------------------------------------------------------------
+        
+	h_rlist     =   (('UL','උළු'),('AS','ඇස්බැස්ටස්'),('TH','තහඩු'),('TS','තාරශීට්'),('CO','කොන්ක්‍රීෟට්'))
+	h_flist     =   (('CE','සිමෙන්ති'),('TE','ටෙරාසෝ'),('MB','මාබල්'),('MT','මැටි'),('CO','කොන්ක්‍රීට්'))
+	h_wlist     =   (('BG','බලොාක් ගල්'),('GD','ගඩොල්'),('MT','මැටි'),('LL','ලෑලි'),('TH','තහඩු'))
+	h_villager  =   models.ManyToManyField(Villager)
+	h_no	    =   models.CharField(max_length=10,verbose_name="ගෘහ අංකය")
+	h_shade     =   models.CharField(max_length=20,verbose_name="වහලය",choices=h_rlist,default="UL")
+	h_floor     =   models.CharField(max_length=20,verbose_name="ගෙබිම",choices=h_flist,default="CE")
+	h_wall      =   models.CharField(max_length=20,verbose_name="බිත්ති",choices=h_wlist,default="BG")
+	h_water     =   models.BooleanField(default=False,verbose_name="ජලය")
+	h_elec      =   models.BooleanField(default=False,verbose_name="විදුලිය")
+	h_toilet    =   models.BooleanField(default=False,verbose_name="වැසිකිලි")
+	h_lantel    =   models.CharField(max_length=10,verbose_name="නිවසේ දුරකථන අංකය")
+	h_pic       = models.ImageField(upload_to='home_image',blank=True,verbose_name='ඡායාරූපය')
+
+#----------------------------------------------------------------------------------------------------------------------------
+	def __str__(self):
+		return self.h_lantel
+
+class Land(models.Model):
+#models adttributes --------------------------------------------------------------------------------------------------------
+        h_villager  =   models.ManyToManyField(Villager)
+        l_list      = (('SI','සිංනක්කර'),('AN','අනවසර'),('WB','වාර්ෂික බලපත්‍ර'),('JB','ජයභූමි'),('SB','ස්වර්ණභූමි'),('KU','කුලීකරුවන්'))
+        l_period    = models.CharField(max_length=10,verbose_name="පදිංචි කාලය")
+        l_type      = models.CharField(max_length=10,verbose_name="ඉඩමේ වර්ගය",choices=l_list,default='SI')
+        l_lno       = models.CharField(max_length=10,verbose_name="බලපත්‍ර අංකය")
+        l_kno       = models.CharField(max_length=10,verbose_name="කට්ටි අංකය")
+        l_size      = models.CharField(max_length=10,verbose_name="ඉඩමේ ප්‍රමාණය")
+        p_pic       = models.ImageField(upload_to='land_image',blank=True,verbose_name='ඡායාරූපය')
+#----------------------------------------------------------------------------------------------------------------------------
+        def __str__(self):
+            return self.l_type
+
+class Buisness(models.Model):
+#models adttributes --------------------------------------------------------------------------------------------------------
+        h_villager  =   models.ManyToManyField(Villager)
+        b_name      = models.CharField(max_length=300,verbose_name="ව්‍යාපාර නාමය")#Business Name
+        b_oname     = models.CharField(max_length=100,verbose_name="අයිතිකරුගේ නම")#Business Ower Name
+        b_paddress1 = models.CharField(max_length=100,verbose_name="අංකය")#Business Permanent Address
+        b_paddress2 = models.CharField(max_length=100,verbose_name="ලිපිනය 1")#Business Permanent Address
+        b_paddress3 = models.CharField(max_length=100,verbose_name="ලිපිනය 2")#Business Permanent Address
+        b_type      = models.CharField(max_length=300,verbose_name="ව්‍යාපාර ස්වභාවය")#Business Type
+        b_sdate     = models.CharField(max_length=10,verbose_name="ව්‍යාපාරය ආරම්භකල දිනය")#Business Start Date
+        b_rnumber   = models.CharField(max_length=100,verbose_name="ලියාපදිංචි අංකය")#Business Registration Number
+        b_tnumber   = models.CharField(max_length=10,verbose_name="ව්‍යාපාරයේ දුරකථන අංකය")#Business Telephone Number
+#----------------------------------------------------------------------------------------------------------------------------
+
+        def __str__(self):
+                return self.b_name
+
+class Organizations(models.Model):
+#models adttributes --------------------------------------------------------------------------------------------------------
+        #h_villager  =   models.ManyToManyField(Villager)
+        o_name     = models.CharField(max_length=300,verbose_name="සංවිධානයේ නම")#Organization's Name
+        o_purpose  = models.CharField(max_length=500,verbose_name="සංවිධානය වීමේ අරමුණ")#Organization's Purpose
+        o_address1 = models.CharField(max_length=100,verbose_name="සංවිධානයේ ලිපිනය")#Oranization's Adress
+        o_address2 = models.CharField(max_length=100,verbose_name="")#Organization's Address
+        o_address3 = models.CharField(max_length=100,verbose_name="")#Organization's Address
+        o_rnumber  = models.CharField(max_length=100,verbose_name="සංවිධානයේ ලියාපදිංචි අංකය")#Organization's Register Number
+        o_sdate    = models.CharField(max_length=10,verbose_name="සංවිධානය ආරම්භක දිනය")#Organization's Start Date
+        o_nmembers = models.IntegerField(default=3,verbose_name="සමාජික සංඛ්‍යාව")#Organization's Number Of Members
+        #o_sstaff   = models.ForeignKey(Person,verbose_name="ලේකම්ගේ නම")#Organization's Secretary
+        #o_pstaff   = models.ForeignKey(Person,verbose_name="සභාපතිගේ  නම")#Organization's Prsident
+        #o_asstaff  = models.ForeignKey(Person,verbose_name="උප ලේකම්ගේ නම")#Organization's Assistant Secretary
+        #o_apstaff  = models.ForeignKey(Person,verbose_name="උප සභාපතිගේ  නම")#Organization's Assistant President
+        #o_tstaff   = models.ForeignKey(Person,verbose_name="භාණ්ඩාගාරිකගේ නම")#Organization's Staff
+#----------------------------------------------------------------------------------------------------------------------------
+
+        def __str__(self):
+                return self.o_name
+
+
+

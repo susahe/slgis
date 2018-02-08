@@ -29,7 +29,7 @@ class VillagerAdmin(admin.ModelAdmin):
         #ordering = ['p_type', 'Person.fname']
         search_fields = ['p_type','p_donation']
         list_filter = ['p_donation']
-
+        list_display=['get_p_type_display']
 class HouseAdmin(admin.ModelAdmin):
         ordering = ['h_shade']
         search_fields = ['h_shade','h_floor','h_wall','h_water','h_elec','h_toilet','h_lantel']
